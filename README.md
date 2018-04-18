@@ -5,6 +5,13 @@ The main goal of this task is to create a simple application for managing movies
 (B) Approving reviews 
 
 The sample is devloped in go and mongodb 
+ Application exposes REST API endpoints (with JSON data type)
+ 
+ Using REST API user can: 
+ * Create movies (Title must have at least 3 characters up to 50 and can contain only letters)
+ * Get list of movies sorted by the rating
+ * Delete selected movie
+ * Add review for movie. Review should be examined and published only after getting acceptance. For checking review, movies s  ervice (A) calls approving service (B) asynchronously. Implementation of approving algorithm can be simplified.
 
 ### Refrences
 
@@ -62,7 +69,7 @@ Documentation
 curl -X PUT -H "Content-Type: application/json" -d '{"data":{"title":"myawsomemovie","director":"Ken Block","actors":["John Snow2","ChristinaJake"],"rating": 3.55,"createdAt": "2018-04-15T08:02:06.029Z","review" : "super cool movie"}}' http://movies.local/movies/addreview/5ad6a86d1c419b0009c5ff39
 ```
 
-
+(B) Approving reviews
 **Simple review apprvoal service:**
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"id": "5ad68743ad8f9c00075dab57","title": "MyAwesomeMovie22","rating": 2.55,"director": "Ken Block","actors": ["John Snow2","Christina Jake"],"createdAt": "2018-04-17T18:05:33.631Z","review" : "super cool review2"}' http://approvereviews.local/approvereview
