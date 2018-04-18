@@ -10,6 +10,7 @@ RUN go get fmt
 RUN go get log
 RUN go get net/http
 
+
 # copy the local package files to the container workspace
 ADD . /go/src/github.com/mismaeel/moviesapp/approvereviews
 

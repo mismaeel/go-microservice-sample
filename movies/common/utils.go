@@ -16,8 +16,15 @@ type (
 		Message    string `json:"message"`
 		HttpStatus int    `json:"status"`
 	}
+	appInfo struct {
+		Message    string `json:"message"`
+		HttpStatus int    `json:"status"`
+	}
 	errorResource struct {
 		Data appError `json:"data"`
+	}
+	InfoResource struct {
+		Data appInfo `json:"data"`
 	}
 	configuration struct {
 		Server, MongoDBHost, DBUser, DBPwd, Database string
@@ -34,6 +41,18 @@ func DisplayAppError(w http.ResponseWriter, handlerError error, message string, 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	if j, err := json.Marshal(errorResource{Data: errObj}); err == nil {
+		w.Write(j)
+	}
+}
+
+func DisplayAppInfo(w http.ResponseWriter, message string, code int) {
+	infoObj := appInfo{
+		Message:    message,
+		HttpStatus: code,
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
+	if j, err := json.Marshal(InfoResource{Data: infoObj}); err == nil {
 		w.Write(j)
 	}
 }

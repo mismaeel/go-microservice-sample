@@ -5,6 +5,7 @@ FROM golang:1.6
 RUN go get gopkg.in/mgo.v2
 RUN go get github.com/gorilla/mux
 RUN go get gopkg.in/validator.v2
+RUN go get io/ioutil
 
 # copy the local package files to the container workspace
 ADD . /go/src/github.com/mismaeel/moviesapp/movies

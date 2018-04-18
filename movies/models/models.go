@@ -15,6 +15,6 @@ type (
 		Director  string        `json:"director"`
 		Actors    []string      `json:"actors"`
 		CreatedOn time.Time     `json:"createdAt,omitempty"`
-		Review    []string        `json:"review,omitempty"`
+		Review    string       `json:"review,omitempty"`
 	}
 )

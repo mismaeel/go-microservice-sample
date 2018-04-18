@@ -3,10 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-
+	"regexp"
+	"io/ioutil"
+   "bytes"
 	"github.com/gorilla/mux"
 	"github.com/mismaeel/moviesapp/movies/common"
 	"github.com/mismaeel/moviesapp/movies/data"
+	"github.com/mismaeel/moviesapp/movies/models"
 	"gopkg.in/mgo.v2"
 )
 
@@ -43,6 +46,13 @@ func CreateMovie(w http.ResponseWriter, r *http.Request) {
 
 
 	movie := &dataResourse.Data
+	var IsLetter = regexp.MustCompile(`^[a-zA-Z]+$`).MatchString
+
+ if len(movie.Title)< 3 || len(movie.Title) > 50 || IsLetter(movie.Title) == false {
+  common.DisplayAppInfo(w,"Validation Error: Movie Title shoud by 3-50 letters only"  , 200)
+	return
+ }
+
 
 	// create new context
 	context := NewContext()
@@ -78,21 +88,58 @@ func AddMovieReview(w http.ResponseWriter, r *http.Request) {
 	// Get id from incoming url
 	vars := mux.Vars(r)
 	id := vars["id"]
-	// create new context
-	context := NewContext()
-	defer context.Close()
-	c := context.DbCollection("movies")
-	// Insert a movie document
-	repo := &data.MovieRepository{c}
-	repo.Update(id,movie)
-	j, err := json.Marshal(dataResourse)
-	if err != nil {
-		common.DisplayAppError(w, err, "An unexpected error has occurred", 500)
-		return
+
+	// replying to the http request
+	common.DisplayAppInfo(w,"Review recieved it will be puplished after apprvoal", 200)
+	// calling the approval service Async http call
+	ch := make(chan string)
+  go post(movie, ch)
+
+	// recieving from chanel the response
+  body := <-ch
+
+    // updating the database if the review was approved
+    if body == "approved"{
+
+			// create new context
+			context := NewContext()
+			defer context.Close()
+			c := context.DbCollection("movies")
+			// Insert a movie document
+			repo := &data.MovieRepository{c}
+			repo.Update(id,movie)
+		}
+
+}
+
+func post(movie *models.Movie, ch chan string) {
+	url := "http://approvereviews:8080/approvereview"
+
+	u := models.Movie{
+		Id: movie.Id,
+		Title: movie.Title,
+		Rating: movie.Rating,
+		Director: movie.Director,
+		Actors: movie.Actors,
+		CreatedOn: movie.CreatedOn,
+		Review: movie.Review,
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(j)
+
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(u)
+
+	req, err := http.NewRequest("POST", url,b)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	ch <- string(body)
+
 }
 
 // Handler for HTTP Get - "/movies/{id}"
