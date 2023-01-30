@@ -11,5 +11,6 @@ func setMovieRouters(router *mux.Router) *mux.Router {
 	router.HandleFunc("/movies/{id}", controllers.GetMovieById).Methods("GET")
 	router.HandleFunc("/movies/{id}", controllers.DeleteMovie).Methods("DELETE")
 	router.HandleFunc("/movies/addreview/{id}", controllers.AddMovieReview).Methods("PUT")
+	router.HandleFunc("/movies/addreview/{id}", controllers.AddMovieReview).Methods("GET")
 	return router
 }
