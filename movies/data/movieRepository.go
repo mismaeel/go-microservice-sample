@@ -42,7 +42,3 @@ func (r *MovieRepository) GetById(id string) (movie models.Movie, err error) {
 	return
 }
 
-func (r *MovieRepository) Delete(id string) error {
-	err := r.C.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
-	return err
-}
